@@ -1,0 +1,7 @@
+enum SmileyType {
+    SMILEY_TYPE_NONE = 0,
+    SMILEY_TYPE_ANGRY,
+    SMILEY_TYPE_SAD,
+    SMILEY_TYPE_MEH,
+    SMILEY_TYPE_HAPPY
+};

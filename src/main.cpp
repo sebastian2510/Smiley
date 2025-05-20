@@ -1,15 +1,16 @@
 #include <Arduino.h>
 #include <string.h>
 #include "./Types/Smiley.h"
-// put function declarations here:
-#define BLUE_BUTTON 19
-#define BLUE_LED 18
-#define RED_BUTTON 23
-#define RED_LED 17
-#define GREEN_BUTTON 22
-#define GREEN_LED 16
-#define YELLOW_BUTTON 21
-#define YELLOW_LED 15
+#include <ctime>
+
+#define BLUE_BUTTON 4
+#define BLUE_LED 26
+#define RED_BUTTON 18
+#define RED_LED 33
+#define GREEN_BUTTON 19
+#define GREEN_LED 27
+#define YELLOW_BUTTON 5
+#define YELLOW_LED 25
 void registerSmileys();
 
 Smiley smiley[] = {
@@ -20,19 +21,25 @@ Smiley smiley[] = {
 };
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
   registerSmileys();
 }
 
 void loop() {
-  Serial.printf("Status: %s\n", digitalRead(BLUE_BUTTON) ? "pressed" : "not pressed");
-  delay(1000);
+  for (Smiley smiley : smiley) {
+    if (digitalRead(smiley.getButtonId()) == HIGH) {
+      digitalWrite(smiley.getLightId(), HIGH);
+      Serial.printf("Button %d pressed, light %d ON\n", smiley.getButtonId(), smiley.getLightId());
+      delay(1000); // Keep the light on for 1 second
+      digitalWrite(smiley.getLightId(), LOW);
+    }
+  }
 }
 
 void registerSmileys() {
   for (Smiley smiley : smiley) {
     pinMode(smiley.getButtonId(), INPUT_PULLUP);
     pinMode(smiley.getLightId(), OUTPUT);
+    Serial.printf("Button ID: %d, Light ID: %d Timestamp: %s\n", smiley.getButtonId(), smiley.getLightId(), asctime(smiley.getTimestamp()));
   }
 }
