@@ -5,6 +5,7 @@
 #include "./Services/APService.h"
 #include "./Services/NTPService.h"
 
+
 #define BLUE_BUTTON 26
 #define BLUE_LED 4
 #define RED_BUTTON 33
@@ -28,21 +29,23 @@ void setup() {
   APService::setup();
   NTPService::setup();
   registerSmileys();
+  
 
-void loop() {
-  for (Smiley smiley : smiley) {
-    if (digitalRead(smiley.getButtonId()) == HIGH) {
-      digitalWrite(smiley.getLightId(), HIGH);
-      smiley.setTimestamp(NTPService::getTime());
-      Serial.printf("[Pressed] Button ID: %d, Light ID: %d Type: %s Timestamp: %s \n", smiley.getButtonId(), smiley.getLightId(), SmileyTypeToString(smiley.getType()), asctime(smiley.getTimestamp()));
-      delay(1000); // Keep the light on for 1 second
-      digitalWrite(smiley.getLightId(), LOW);
+  if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_GPIO) {
+    for (Smiley smiley : smiley) {
+      if (digitalRead(smiley.getButtonId()) == LOW) { 
+        digitalWrite(smiley.getLightId(), HIGH);
+        Serial.printf("Button %d pressed, light %d ON\n", smiley.getButtonId(), smiley.getLightId());
+        delay(1000); // Keep the light on for 1 second
+        digitalWrite(smiley.getLightId(), LOW);
+        break;
+      }
     }
   }
 
  for (Smiley smiley : smiley) {
-    esp_sleep_enable_ext0_wakeup((gpio_num_t)smiley.getButtonId(), 0); 
-  }
+  uint64_t wakeup_pin_bitmask = (1ULL << smiley.getButtonId());
+    esp_sleep_enable_ext1_wakeup(wakeup_pin_bitmask, ESP_EXT1_WAKEUP_ANY_HIGH);  }
 
   // Enter deep sleep
   Serial.println("Entering deep sleep...");
