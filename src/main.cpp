@@ -2,6 +2,8 @@
 #include <string.h>
 #include "./Types/Smiley.h"
 #include <ctime>
+#include "./Services/APService.h"
+#include "./Services/NTPService.h"
 
 #define BLUE_BUTTON 4
 #define BLUE_LED 26
@@ -22,6 +24,8 @@ Smiley smiley[] = {
 
 void setup() {
   Serial.begin(115200);
+  APService::setup();
+  NTPService::setup();
   registerSmileys();
 }
 

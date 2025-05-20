@@ -1,14 +1,14 @@
 #pragma once
 #include <ctime>
 #include "./SmileyType.h"
+#include "../Services/NTPService.h"
 class Smiley
 {
 public:
     Smiley(int button_id, SmileyType type, int light_id)
         : button_id(button_id), type(type), light_id(light_id)
     {
-        time_t now = time(0);
-        timestamp = localtime(&now);
+        timestamp = NTPService::getTime();
     }
 
     int getButtonId() const { return button_id; }
