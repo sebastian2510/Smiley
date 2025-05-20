@@ -6,10 +6,7 @@ class Smiley
 {
 public:
     Smiley(int button_id, SmileyType type, int light_id)
-        : button_id(button_id), type(type), light_id(light_id)
-    {
-        timestamp = NTPService::getTime();
-    }
+        : button_id(button_id), type(type), light_id(light_id) {}
 
     int getButtonId() const { return button_id; }
     SmileyType getType() const { return type; }

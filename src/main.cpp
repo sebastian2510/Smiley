@@ -45,6 +45,7 @@ void registerSmileys() {
   for (Smiley smiley : smiley) {
     pinMode(smiley.getButtonId(), INPUT_PULLUP);
     pinMode(smiley.getLightId(), OUTPUT);
+    smiley.setTimestamp(NTPService::getTime());
     Serial.printf("Button ID: %d, Light ID: %d Timestamp: %s\n", smiley.getButtonId(), smiley.getLightId(), asctime(smiley.getTimestamp()));
   }
 }
