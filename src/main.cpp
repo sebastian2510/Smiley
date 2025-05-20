@@ -28,7 +28,6 @@ void setup() {
   APService::setup();
   NTPService::setup();
   registerSmileys();
-}
 
 void loop() {
   for (Smiley smiley : smiley) {
@@ -40,6 +39,29 @@ void loop() {
       digitalWrite(smiley.getLightId(), LOW);
     }
   }
+
+ for (Smiley smiley : smiley) {
+    esp_sleep_enable_ext0_wakeup((gpio_num_t)smiley.getButtonId(), 0); 
+  }
+
+  // Enter deep sleep
+  Serial.println("Entering deep sleep...");
+  delay(100);
+  esp_deep_sleep_start();
+  
+}
+
+void loop() {
+  // for (Smiley smiley : smiley) {
+  //   if (digitalRead(smiley.getButtonId()) == HIGH) {
+  //     digitalWrite(smiley.getLightId(), HIGH);
+  //     Serial.printf("Button %d pressed, light %d ON\n", smiley.getButtonId(), smiley.getLightId());
+  //     delay(1000); // Keep the light on for 1 second
+  //     digitalWrite(smiley.getLightId(), LOW);
+  //     esp_deep_sleep_start();
+      
+  //   }
+  // }
 }
 
 void registerSmileys() {
