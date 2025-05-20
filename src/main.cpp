@@ -47,12 +47,14 @@ void setup() {
     }
   }
 
-  uint64_t wakeupPinsMask = 0;
+  // registers pins used for waking up from deepsleep :) 
+  uint64_t wakeupPins = 0;
   for (Smiley smiley : smiley) {
-    wakeupPinsMask |= (1ULL << smiley.getButtonId());
+    wakeupPins |= (1ULL << smiley.getButtonId());
   }
 
-    esp_sleep_enable_ext1_wakeup(wakeupPinsMask, ESP_EXT1_WAKEUP_ANY_HIGH);  
+  // sets the wakeup pins and what kind of wake up they do
+  esp_sleep_enable_ext1_wakeup(wakeupPins, ESP_EXT1_WAKEUP_ANY_HIGH);  
 
   // Enter deep sleep
   Serial.println("Entering deep sleep...");
