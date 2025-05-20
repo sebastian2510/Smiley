@@ -24,6 +24,7 @@ Smiley smiley[] = {
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("Starting setup of AP...");
   APService::setup();
   NTPService::setup();
   registerSmileys();

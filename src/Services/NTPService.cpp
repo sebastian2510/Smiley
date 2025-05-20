@@ -44,7 +44,7 @@ void NTPService::setup()
  */ 
 struct tm* NTPService::getTime()
 {
-    struct tm* timeinfo;
+    struct tm* timeinfo = new struct tm;
     if (!getLocalTime(timeinfo))
     {
         Serial.println("Failed to obtain time");

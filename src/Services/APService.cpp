@@ -1,44 +1,35 @@
 #include <Arduino.h>
-#include <WiFiManager.h>
+#include <WiFi.h>
 #include "APService.h"
 
-WiFiManager wm;
+const char *ssid = "IoT_H3/4";
+const char *password = "98806829";
+int counter = 0;
 
-/**
- * @brief Sets up the Access Point (AP) service for the ESP32.
- * 
- * This function initializes the WiFi in station mode and starts the serial communication at a baud rate of 115200.
- * It attempts to auto-connect to a WiFi network using the WiFiManager library. If the auto-connect fails, it tries to 
- * connect using a specified SSID and password. If the connection still fails, 
- * it resets the WiFi settings and restarts the ESP32. If the connection is successful, it prints a success message 
- * to the serial monitor.
- */
 void APService::setup()
 {
+    Serial.printf("Setting up AP %d...", counter++);
     WiFi.mode(WIFI_STA);
-    
-    bool res = wm.autoConnect(); // auto generated AP name from chipid
-    if (!res)
-    {
-        res = wm.autoConnect("Sebastians ESP32", "password"); // password protected ap
+    WiFi.begin(ssid, password);
+    Serial.print("Connecting to WiFi ..");
+
+    unsigned long startAttemptTime = millis();
+    const unsigned long wifiTimeout = 15000; // 15 seconds
+
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < wifiTimeout) {
+        Serial.print('.');
+        delay(500);
     }
 
-    if (!res)
-    {
-        Serial.println("Failed to connect");
-        wm.resetSettings();
-        ESP.restart();
-    }
-    else
-    {
-
-        Serial.println("connected...yeey :)");
+    if (WiFi.status() == WL_CONNECTED) {
+        
+        Serial.println(WiFi.localIP());
+    } else {
+        Serial.println("WiFi connection failed!");
     }
 }
 
 void APService::Disconnect()
 {
     WiFi.disconnect();
-    wm.resetSettings();
 }
-// Guest_HX912433
