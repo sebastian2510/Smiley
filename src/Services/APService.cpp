@@ -16,7 +16,7 @@ void APService::setup()
     unsigned long startAttemptTime = millis();
     const unsigned long wifiTimeout = 15000; // 15 seconds
 
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < wifiTimeout) {
+    while (WiFi.status() != WL_CONNECTED && (millis() - startAttemptTime) < wifiTimeout) {
         Serial.print('.');
         delay(500);
     }
