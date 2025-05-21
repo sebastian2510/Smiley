@@ -50,7 +50,7 @@ struct tm* NTPService::getTime()
         Serial.println("Failed to obtain time");
         APService::Disconnect();
         APService::setup();
-
+        setup();
     }
     return timeinfo;
 }
