@@ -4,11 +4,10 @@
 
 const char *ssid = "IoT_H3/4";
 const char *password = "98806829";
-int counter = 0;
 
 void APService::setup()
 {
-    Serial.printf("Setting up AP %d...", counter++);
+    Serial.println("Setting up AP...");
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
     Serial.print("Connecting to WiFi ..");
@@ -22,11 +21,16 @@ void APService::setup()
     }
 
     if (WiFi.status() == WL_CONNECTED) {
-        
+        Serial.print("\nConnected to WiFi ");
         Serial.println(WiFi.localIP());
     } else {
         Serial.println("WiFi connection failed!");
     }
+}
+
+bool APService::isConnected()
+{
+    return WiFi.status() == WL_CONNECTED;
 }
 
 void APService::Disconnect()
