@@ -5,14 +5,14 @@
 #include "./Services/APService.h"
 #include "./Services/NTPService.h"
 
-#define BLUE_BUTTON 4
-#define BLUE_LED 26
-#define RED_BUTTON 18
-#define RED_LED 33
-#define GREEN_BUTTON 19
-#define GREEN_LED 27
-#define YELLOW_BUTTON 5
-#define YELLOW_LED 25
+#define BLUE_BUTTON 26
+#define BLUE_LED 4
+#define RED_BUTTON 33
+#define RED_LED 18
+#define GREEN_BUTTON 27
+#define GREEN_LED 19
+#define YELLOW_BUTTON 25
+#define YELLOW_LED 5
 void registerSmileys();
 
 Smiley smiley[] = {
@@ -34,7 +34,8 @@ void loop() {
   for (Smiley smiley : smiley) {
     if (digitalRead(smiley.getButtonId()) == HIGH) {
       digitalWrite(smiley.getLightId(), HIGH);
-      Serial.printf("Button %d pressed, light %d ON\n", smiley.getButtonId(), smiley.getLightId());
+      smiley.setTimestamp(NTPService::getTime());
+      Serial.printf("[Pressed] Button ID: %d, Light ID: %d Type: %s Timestamp: %s \n", smiley.getButtonId(), smiley.getLightId(), SmileyTypeToString(smiley.getType()), asctime(smiley.getTimestamp()));
       delay(1000); // Keep the light on for 1 second
       digitalWrite(smiley.getLightId(), LOW);
     }
@@ -46,6 +47,6 @@ void registerSmileys() {
     pinMode(smiley.getButtonId(), INPUT_PULLUP);
     pinMode(smiley.getLightId(), OUTPUT);
     smiley.setTimestamp(NTPService::getTime());
-    Serial.printf("Button ID: %d, Light ID: %d Timestamp: %s\n", smiley.getButtonId(), smiley.getLightId(), asctime(smiley.getTimestamp()));
+    Serial.printf("[Registered] Button ID: %d, Light ID: %d Timestamp: %s\n", smiley.getButtonId(), smiley.getLightId(), asctime(smiley.getTimestamp()));
   }
 }
