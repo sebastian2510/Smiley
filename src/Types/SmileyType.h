@@ -3,7 +3,8 @@ enum SmileyType {
     SMILEY_TYPE_ANGRY,
     SMILEY_TYPE_SAD,
     SMILEY_TYPE_MEH,
-    SMILEY_TYPE_HAPPY
+    SMILEY_TYPE_HAPPY,
+    SMILEY_TYPE_END
 };
 
 inline const char* SmileyTypeToString(SmileyType type) {

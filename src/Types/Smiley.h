@@ -5,6 +5,7 @@
 class Smiley
 {
 public:
+    Smiley() {}
     Smiley(int button_id, SmileyType type, int light_id)
         : button_id(button_id), type(type), light_id(light_id) {}
 
