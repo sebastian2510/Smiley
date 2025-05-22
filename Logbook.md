@@ -117,7 +117,7 @@ Logbook was officially added to the project as [Logfile.md](http://Logfile.md)
 
 Started with a review of implemented code on main and the project board, we added some new tasks to the board and a column for discarded tasks, this is to ensure a clear overview of explored features and ideas that we have decided not to implement.
 
-In review of project structure we focused on edge cases in regards to deep-sleep optimization, specifically, we wanted to explore the possibillities of connection issues due to our deep-sleep strategy an how to handle them without dataloss.
+In our review of the project structure we focused on edge cases in regards to deep-sleep optimization, specifically, we wanted to explore the possibillities of connection issues due to our deep-sleep strategy and how to handle them without dataloss.
 
 We discussed the possibility of using a queue to store the data that was to be sent, and then send it when the connection was re-established.
 the queue would be saved in the deep-sleep memory, and would be sent when the connection was re-established, this would allow us to send the data even if the connection is lost for multiple program runs.
@@ -137,12 +137,8 @@ We added a service class and methods for the MQTT library, and started implement
 
 ```
 
-We ended up with some refactoring of the APService and used the Arduino MQTT library's documentation example as a base for our implementation.
+We did not end up with some refactoring of the APService that would follow the Arduino MQTT library's documentation example.
 
-```cpp
-// SÆT ET EKSEMPEL PÅ HVORDAN VI HAR STRUKTURERET VORES KODE
-
-```
 
 After the core connection and publish functionality was implemented, we took a look at the message structure and discussed the best approach for the message format. We decided that the message should be sent in a JSON structure, as that would be consistent with how we would pull the data from the database. The format is done without any special libraries, as we wanted to keep the code as simple as possible.
 
@@ -156,9 +152,58 @@ We ended up implementing the discussed queue functionality for failed messages t
 The queue is iterated over and checked for failed messages, but is passed quickly if empty to ensure optimised performance.
 
 ```cpp
+char *failedMessages[5] = (char**)malloc(5 * sizeof(char*));
 
-// SÆT ET EKSEMPEL PÅ HVORDAN VI HAR STRUKTURERET VORES KODE
+void MQTTService::reSendMessages()
+{
 
+    for (int i = 0; failedMessages[i] != NULL; i++)
+    {
+        int status = sendMessage(failedMessages[i], false);
+        if (status)
+        {
+            free(failedMessages[i]);
+            failedMessages[i] = nullptr;
+        }
+
+        delay(200);
+    }
+}
+```
+
+Our implementation of when to resend messages became a rather innovative design, because we wanted to either insert at the next free slot or replace the oldest saved message.
+```cpp
+        for (int i = 0; i < 5; i++)
+        {
+            if (failedMessages[i] == nullptr)
+            {
+                failedMessages[i] = (char *)malloc(strlen(message) + 1);
+                strcpy(failedMessages[i], message);
+                lastValue = i;
+                return false;
+            }
+        }
+
+        strcpy(failedMessages[++lastValue % 5], message);
+```
+
+However, the implementation of replacing the oldest value did not cover all use cases and were therefore refactored into the following for better handling of `lastValue`. We also changed the initialisation of failedmessages to ensure a simpler way of doing the same.
+```cpp
+char *failedMessages[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+```
+```cpp
+        lastValue = (lastValue + 1) % 5;
+        if (failedMessages[lastValue] != nullptr)
+        {
+            free(failedMessages[lastValue]);
+        }
+        failedMessages[lastValue] = (char *)malloc(strlen(message) + 1);
+        strcpy(failedMessages[lastValue], message);
 ```
 
 For the remaining development time we are focusing on tests and debugging.
+
+We had a minor issue with `\n` in the timestamp, so we had to refactor our `toJson` and ended up with a rather simple approach despite the scalability were not in focus.
+```cpp
+// INDSÆT HER
+```
