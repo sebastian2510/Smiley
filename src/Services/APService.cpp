@@ -13,7 +13,7 @@ void APService::setup()
     Serial.print("Connecting to WiFi ..");
 
     unsigned long startAttemptTime = millis();
-    const unsigned long wifiTimeout = 15000; // 15 seconds
+    const unsigned long wifiTimeout = 5000; // 5 seconds
 
     while (WiFi.status() != WL_CONNECTED && (millis() - startAttemptTime) < wifiTimeout) {
         Serial.print('.');
