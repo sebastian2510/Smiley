@@ -54,3 +54,4 @@ struct tm* NTPService::getTime()
     }
     return timeinfo;
 }
+
