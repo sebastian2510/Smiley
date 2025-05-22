@@ -38,10 +38,10 @@ void setup()
   bool pressed = false;
   if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_EXT1)
   {
-    uint64_t wakeupMask = esp_sleep_get_ext1_wakeup_status();
+    uint64_t wakeupPin = esp_sleep_get_ext1_wakeup_status();
     for (Smiley smiley : smileys)
     {
-      if (wakeupMask & BUTTON_PIN_BITMASK(smiley.getButtonId()))
+      if (wakeupPin & BUTTON_PIN_BITMASK(smiley.getButtonId()))
       {
         // Check if the button is debounced
         if (debounce.isDebounced(smiley.getButtonId(), millis()))
