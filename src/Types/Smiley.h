@@ -5,7 +5,12 @@
 class Smiley
 {
 public:
-    Smiley() {}
+    Smiley() {
+        button_id = 0;
+        type = SMILEY_TYPE_NONE;
+        light_id = 0;
+        timestamp = nullptr;
+    }
     Smiley(int button_id, SmileyType type, int light_id)
         : button_id(button_id), type(type), light_id(light_id) {}
 
