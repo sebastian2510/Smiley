@@ -6,6 +6,8 @@
 #include "./Services/NTPService.h"
 #include "./Types/Debounce.h"
 
+
+#define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO)
 #define BLUE_BUTTON 26
 #define BLUE_LED 4
 #define RED_BUTTON 33
@@ -16,6 +18,8 @@
 #define YELLOW_LED 21
 
 void registerSmileys();
+void registerWakeupPins();
+
 Debounce debounce(0, 0);
 
 Smiley smileys[] = {
@@ -31,14 +35,15 @@ void setup()
   registerSmileys();
 
   Smiley id;
-  unsigned long now;
+  bool pressed = false;
   if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_EXT1)
   {
-
+    uint64_t wakeupMask = esp_sleep_get_ext1_wakeup_status();
     for (Smiley smiley : smileys)
     {
-      if (digitalRead(smiley.getButtonId()) == HIGH)
+      if (wakeupMask & BUTTON_PIN_BITMASK(smiley.getButtonId()))
       {
+        // Check if the button is debounced
         if (debounce.isDebounced(smiley.getButtonId(), millis()))
         {
           return;
@@ -46,7 +51,6 @@ void setup()
 
         debounce.button_id = smiley.getButtonId();
         debounce.last_time = millis();
-        now = millis();
 
         digitalWrite(smiley.getLightId(), HIGH);
         Serial.printf("Button %d pressed, light %d ON\n", smiley.getButtonId(), smiley.getLightId());
@@ -65,24 +69,31 @@ void setup()
   if (id.getButtonId() != 0)
   {
     id.setTimestamp(NTPService::getTime());
-    while (millis() < now + 7000)
+
+    while (millis() < debounce.last_time + 7000)
     {
     }
+    
     digitalWrite(id.getLightId(), LOW);
   }
 
-  uint64_t wakeupPins = 0;
-  for (Smiley smiley : smileys)
-  {
-    wakeupPins |= (1ULL << smiley.getButtonId());
-  }
-
-  esp_sleep_enable_ext1_wakeup(wakeupPins, ESP_EXT1_WAKEUP_ANY_HIGH);
+  registerWakeupPins();
 
   // Enter deep sleep
   Serial.println("Entering deep sleep...");
   delay(100);
   esp_deep_sleep_start();
+}
+
+void registerWakeupPins()
+{
+  uint64_t wakeupPins = 0;
+  for (Smiley smiley : smileys)
+  {
+    wakeupPins |= BUTTON_PIN_BITMASK(smiley.getButtonId());
+  }
+
+  esp_sleep_enable_ext1_wakeup(wakeupPins, ESP_EXT1_WAKEUP_ANY_HIGH);
 }
 
 void loop()
