@@ -15,7 +15,7 @@ Development environement, required libraries, interfaces/types and physical prod
 We added our overall structure to the project - I.e interfaces and helper methods.
 
 Added some simple functionality to expand upon for the required features, we basically
-wanted to register the buttons based on our interface and relevant values to test that each button press would light the correct diode, register the correct time in the correct format all with the correct value corresponding to the buttons id. Our primary focus were expand- and scalability hence the dynamic loading that allowed us to add and adjust the amount of hardware on the board. This way we could check one button and know that future issues with registration would be due to faulty hardware.  
+wanted to register the buttons based on our interface and relevant values to test that each button press would light the correct diode, register the correct time in the correct format all with the correct value corresponding to the buttons id. Our primary focus were expand- and scalability hence the dynamic loading that allowed us to add and adjust the amount of hardware on the board. This way we could check one button and know that future issues with registration would be due to faulty hardware.
 
 ```cpp
 public:
@@ -39,6 +39,7 @@ private:
 ```
 
 Read documentation for required features and started implementation of deep-sleep, WiFi and NTP.
+
 ```cpp
 #pragma once
 class APService
@@ -50,6 +51,7 @@ public:
 };
 
 ```
+
 ```cpp
 class NTPService
 {
@@ -79,10 +81,11 @@ We set a cause of wakeup to be EXT1, initially we set the type to be GPIO
 
 Though after testing the type that the wakeup returned was == 3 corrosponding to the type of EXT1.
 
-After a longer testing and debugging phase trying to optimize program execution performance, simplified our code and added an "END" state to our SmileyType enum, which would be reliable in the sense that every type should correspond with a button, which essentially did that we wouldn't calculate the size of our array but relied on the assigned types.   
+After a longer testing and debugging phase trying to optimize program execution performance, simplified our code and added an "END" state to our SmileyType enum, which would be reliable in the sense that every type should correspond with a button, which essentially did that we wouldn't calculate the size of our array but relied on the assigned types.  
 We settled on a simple approach for button registration, implemented a simple custom debounce and proceeded with tests for ensuring program consistency and reverted some of the dynamic code functionality.
 
 We also tried experimenting with pointers with our ezButton library, but also ended up backtracking for a clearer and more simple approach.
+
 ```cpp
 struct Debounce {
     int button_id;
@@ -91,14 +94,15 @@ struct Debounce {
 
     bool isDebounced(int id, unsigned long current_time) {
         if (id != button_id) {
-            return false; 
+            return false;
         }
         return current_time - last_time <= 50
     }
 };
 ```
 
-We added safe guards for our AP service such that we only create a new connection when one isn't present. 
+We added safe guards for our AP service such that we only create a new connection when one isn't present.
+
 ```cpp
   if (!APService::isConnected())
   {
@@ -107,5 +111,54 @@ We added safe guards for our AP service such that we only create a new connectio
   }
 ```
 
-
 Logbook was officially added to the project as [Logfile.md](http://Logfile.md)
+
+## Day 3:
+
+Started with a review of implemented code on main and the project board, we added some new tasks to the board and a column for discarded tasks, this is to ensure a clear overview of explored features and ideas that we have decided not to implement.
+
+In review of project structure we focused on edge cases in regards to deep-sleep optimization, specifically, we wanted to explore the possibillities of connection issues due to our deep-sleep strategy an how to handle them without dataloss.
+
+We discussed the possibility of using a queue to store the data that was to be sent, and then send it when the connection was re-established.
+the queue would be saved in the deep-sleep memory, and would be sent when the connection was re-established, this would allow us to send the data even if the connection is lost for multiple program runs.
+
+Because of the projects nature, power efficiency is paramount, we wanted to ensure that we can keep the device in deep-sleep as long as possible, and only wake it up when we need to send data. That means that the window for publishing data is very small, leading to possible problems with consistency and reliabillity.
+
+Because of this we also had to consider the use of a wakeup timer which would periodically wake up the device to check for failed messages and send them on a more generous schedule, ensuring that we wont clog the queue in memory.
+
+started working on the MTQQ implementation.
+
+Disscussed different MTQQ libraries and decided to go with the ArduinoMQTT library, as it was the most simple and easy to use.
+
+We added a service class and methods for the MQTT library, and started implementing the basic functionality of connecting to the broker and publishing messages. we also had to reconsider our connection structure for wifi as we needed to ensure that what we had already implemented was optimized for the MQTT library.
+
+```cpp
+// SÆT ET EKSEMPEL PÅ HVORDAN VI HAR STRUKTURERET VORES KODE
+
+```
+
+We ended up with some refactoring of the APService and used the Arduino MQTT library's documentation example as a base for our implementation.
+
+```cpp
+// SÆT ET EKSEMPEL PÅ HVORDAN VI HAR STRUKTURERET VORES KODE
+
+```
+
+After the core connection and publish functionality was implemented, we took a look at the message structure and discussed the best approach for the message format. We decided that the message should be sent in a JSON structure, as that would be consistent with how we would pull the data from the database. The format is done without any special libraries, as we wanted to keep the code as simple as possible.
+
+```cpp
+// SÆT ET EKSEMPEL PÅ HVORDAN VI HAR STRUKTURERET VORES KODE
+
+```
+
+We ended up implementing the discussed queue functionality for failed messages to try and ensure less holes in the program logic, this was implemented as part of the MQTTService class.
+
+The queue is iterated over and checked for failed messages, but is passed quickly if empty to ensure optimised performance.
+
+```cpp
+
+// SÆT ET EKSEMPEL PÅ HVORDAN VI HAR STRUKTURERET VORES KODE
+
+```
+
+For the remaining development time we are focusing on tests and debugging.
