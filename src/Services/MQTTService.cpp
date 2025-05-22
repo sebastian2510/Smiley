@@ -27,10 +27,17 @@ void MQTTService::setup()
     {
         Serial.print("MQTT connection failed! Error code = ");
         Serial.println(mqttClient.connectError());
+        int count = 0; 
         while (!mqttClient.connected())
         {
             Serial.print(".");
             delay(500);
+            count++;
+
+            if(count == 3){
+                Serial.println("\nERROR: MQTT request timed out");
+                return;
+            }
         }
         Serial.println("");
     }
