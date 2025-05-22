@@ -3,6 +3,7 @@
 
 #include "./SmileyType.h"
 #include "../Services/NTPService.h"
+#include <string.h>
 class Smiley
 {
 public:
@@ -22,14 +23,17 @@ public:
     void setTimestamp(struct tm* new_timestamp) { timestamp = new_timestamp; }
     const char* toJson() const {
         static char buffer[256];
-        static char* s_timestamp = asctime(getTimestamp());
+
+        std::string s_timestamp (asctime(getTimestamp()));
+        s_timestamp.erase(std::remove(s_timestamp.begin(), s_timestamp.end(), '\n'), s_timestamp.end());
+
         sprintf(buffer, 
         "{"
         "\'button_id\': %d, "
         "\'led_id\': %d, "
         "\'type:\': \'%s\', "
         "\'timestamp\': \'%s\'"
-        "}", button_id, light_id, SmileyTypeToString(type), std::remove(std::begin(s_timestamp), std::end(s_timestamp), '\n'));
+        "}", button_id, light_id, SmileyTypeToString(type), s_timestamp.c_str());
         return buffer;
     }
     
