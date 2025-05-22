@@ -49,9 +49,6 @@ void setup()
           return;
         }
 
-        debounce.button_id = smiley.getButtonId();
-        debounce.last_time = millis();
-
         digitalWrite(smiley.getLightId(), HIGH);
         Serial.printf("Button %d pressed, light %d ON\n", smiley.getButtonId(), smiley.getLightId());
         id = smiley;
