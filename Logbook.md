@@ -93,12 +93,7 @@ struct Debounce {
         if (id != button_id) {
             return false; 
         }
-
-        if (current_time - last_time > 50) {
-            last_time = current_time;
-            return true;
-        }
-        return false;
+        return current_time - last_time <= 50
     }
 };
 ```
