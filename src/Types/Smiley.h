@@ -1,5 +1,6 @@
 #pragma once
 #include <ctime>
+
 #include "./SmileyType.h"
 #include "../Services/NTPService.h"
 class Smiley
@@ -19,7 +20,19 @@ public:
     int getLightId() const { return light_id; }
     struct tm* getTimestamp() const { return timestamp; }
     void setTimestamp(struct tm* new_timestamp) { timestamp = new_timestamp; }
-
+    const char* toJson() const {
+        static char buffer[256];
+        static char* s_timestamp = asctime(getTimestamp());
+        sprintf(buffer, 
+        "{"
+        "\'button_id\': %d, "
+        "\'led_id\': %d, "
+        "\'type:\': \'%s\', "
+        "\'timestamp\': \'%s\'"
+        "}", button_id, light_id, SmileyTypeToString(type), std::remove(std::begin(s_timestamp), std::end(s_timestamp), '\n'));
+        return buffer;
+    }
+    
 private:
     int button_id;
     SmileyType type;
