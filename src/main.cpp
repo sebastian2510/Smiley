@@ -4,8 +4,8 @@
 #include <ctime>
 #include "./Services/APService.h"
 #include "./Services/NTPService.h"
+#include "./Services/MQTTService.h"
 #include "./Types/Debounce.h"
-
 
 #define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO)
 #define BLUE_BUTTON 26
@@ -63,14 +63,27 @@ void setup()
     NTPService::setup();
   }
 
+  if (!MQTTService::isConnected())
+  {
+    MQTTService::setup();
+  }
+
   if (id.getButtonId() != 0)
   {
     id.setTimestamp(NTPService::getTime());
-
-    while (millis() < debounce.last_time + 7000)
+    if (MQTTService::sendMessage(id.toJson()))
+    {
+      Serial.println("Message sent successfully");
+    }
+    else
+    {
+      Serial.println("Failed to send message");
+    }
+    unsigned long sleepTime = debounce.last_time + 7000;
+    while (millis() < sleepTime)
     {
     }
-    
+
     digitalWrite(id.getLightId(), LOW);
   }
 
