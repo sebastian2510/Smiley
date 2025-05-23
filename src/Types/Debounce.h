@@ -15,7 +15,7 @@ struct Debounce {
      * @param current_time The current time in milliseconds.
      * @return true if the button press is within the debounce period, false otherwise.
      */
-    bool isDebounced(int id, unsigned long current_time) {
+    bool isBounced(int id, unsigned long current_time) {
         if (id != button_id) {
             return false; 
         }

@@ -44,7 +44,7 @@ void setup()
       if (wakeupPin & BUTTON_PIN_BITMASK(smiley.getButtonId()))
       {
         // Check if the button is debounced
-        if (debounce.isDebounced(smiley.getButtonId(), millis()))
+        if (debounce.isBounced(smiley.getButtonId(), millis()))
         {
           return;
         }
