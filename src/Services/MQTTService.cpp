@@ -5,7 +5,7 @@
 #include "APService.h"
 
 const char endpoint[] = "sensor/device09";
-const char deviceName[] = "device09"; // Works as topic too
+const char deviceName[] = "device09";
 const char password[] = "device09-password";
 const char broker[] = "192.168.0.130";
 const int port = 1883;
