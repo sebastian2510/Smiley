@@ -92,7 +92,7 @@ struct Debounce {
     unsigned long last_time;
     Debounce(int id, unsigned long time) : button_id(id), last_time(time) {}
 
-    bool isDebounced(int id, unsigned long current_time) {
+    bool isBounced(int id, unsigned long current_time) {
         if (id != button_id) {
             return false;
         }
