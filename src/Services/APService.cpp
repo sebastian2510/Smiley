@@ -15,15 +15,19 @@ void APService::setup()
     unsigned long startAttemptTime = millis();
     const unsigned long wifiTimeout = 5000; // 5 seconds
 
-    while (WiFi.status() != WL_CONNECTED && (millis() - startAttemptTime) < wifiTimeout) {
+    while (WiFi.status() != WL_CONNECTED && (millis() - startAttemptTime) < wifiTimeout)
+    {
         Serial.print('.');
         delay(500);
     }
 
-    if (WiFi.status() == WL_CONNECTED) {
+    if (WiFi.status() == WL_CONNECTED)
+    {
         Serial.print("\nConnected to WiFi ");
         Serial.println(WiFi.localIP());
-    } else {
+    }
+    else
+    {
         Serial.println("WiFi connection failed!");
     }
 }

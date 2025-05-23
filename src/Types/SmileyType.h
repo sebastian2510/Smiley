@@ -1,4 +1,5 @@
-enum SmileyType {
+enum SmileyType
+{
     SMILEY_TYPE_NONE = 0,
     SMILEY_TYPE_ANGRY,
     SMILEY_TYPE_SAD,
@@ -7,12 +8,19 @@ enum SmileyType {
     SMILEY_TYPE_END
 };
 
-inline const char* SmileyTypeToString(SmileyType type) {
-    switch (type) {
-        case SMILEY_TYPE_ANGRY: return "Angry";
-        case SMILEY_TYPE_SAD: return "Sad";
-        case SMILEY_TYPE_MEH: return "Meh";
-        case SMILEY_TYPE_HAPPY: return "Happy";
-        default: return "None";
+inline const char *SmileyTypeToString(SmileyType type)
+{
+    switch (type)
+    {
+    case SMILEY_TYPE_ANGRY:
+        return "Angry";
+    case SMILEY_TYPE_SAD:
+        return "Sad";
+    case SMILEY_TYPE_MEH:
+        return "Meh";
+    case SMILEY_TYPE_HAPPY:
+        return "Happy";
+    default:
+        return "None";
     }
 }
