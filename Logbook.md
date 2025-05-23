@@ -8,7 +8,7 @@ Discussed design principles, project structure , role allocation and broke down 
 
 We set up a Github Project as our management tool, created the repository and added the broken down tasks to the board that were then allocated in the team.
 
-Development environement, required libraries, interfaces/types and physical product was designed and hardware was initially tested to ensure expected behaviour
+Development environement, required libraries, interfaces/types and physical product was designed first in Wokwi (\*\* check image in bottom) and then later on actual hardware that was then tested to ensure expected behaviour
 
 ### Development start
 
@@ -146,13 +146,12 @@ private:
 
 We did not end up with some refactoring of the APService that would follow the Arduino MQTT library's documentation example.
 
-
 After the core connection and publish functionality was implemented, we took a look at the message structure and discussed the best approach for the message format. We decided that the message should be sent in a JSON structure, as that would be consistent with how we would pull the data from the database. The format is done without any special libraries, as we wanted to keep the code as simple as possible.
 
 ```cpp
     const char* toJson() const {
         static char buffer[256];
-        sprintf(buffer, 
+        sprintf(buffer,
         "{"
         "\'button_id\': %d, "
         "\'led_id\': %d, "
@@ -188,6 +187,7 @@ void MQTTService::reSendMessages()
 ```
 
 Our implementation of when to resend messages became a rather innovative design, because we wanted to either insert at the next free slot or replace the oldest saved message.
+
 ```cpp
         for (int i = 0; i < 5; i++)
         {
@@ -204,9 +204,11 @@ Our implementation of when to resend messages became a rather innovative design,
 ```
 
 However, the implementation of replacing the oldest value did not cover all use cases and were therefore refactored into the following for better handling of `lastValue`. We also changed the initialisation of failedmessages to ensure a simpler way of doing the same.
+
 ```cpp
 char *failedMessages[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
 ```
+
 ```cpp
         lastValue = (lastValue + 1) % 5;
         if (failedMessages[lastValue] != nullptr)
@@ -217,14 +219,15 @@ char *failedMessages[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
         strcpy(failedMessages[lastValue], message);
 ```
 
-We had a minor issue with `\n` in the timestamp, so we had to refactor our `toJson` and ended up with a rather simple approach despite the scalability were not in focus.
+We had a minor issue with `\n` in the timestamp, so we had to refactor our `toJson` and ended up with a rather simple approach despite scalability limitations, we concluded it would be a none issue due to the project size.
+
 ```cpp
         static char buffer[256];
 
         std::string s_timestamp (asctime(getTimestamp()));
         s_timestamp.erase(std::remove(s_timestamp.begin(), s_timestamp.end(), '\n'), s_timestamp.end());
 
-        sprintf(buffer, 
+        sprintf(buffer,
         "{"
         "\'button_id\': %d, "
         "\'led_id\': %d, "
@@ -234,10 +237,10 @@ We had a minor issue with `\n` in the timestamp, so we had to refactor our `toJs
         return buffer;
 ```
 
-After a short debate, we agreed to set the time limit of MQTT to 1.5 seconds, such that it wouldn't run indefinetly. 
+After a short debate, we agreed to set the time limit of MQTT to 1.5 seconds, such that it wouldn't run indefinetly.
 
 ```cpp
-        int count = 0; 
+        int count = 0;
         while (!mqttClient.connected())
         {
             Serial.print(".");
@@ -254,3 +257,5 @@ After a short debate, we agreed to set the time limit of MQTT to 1.5 seconds, su
 For the remaining development time we are focusing on tests and debugging.
 
 Our focus were spent on building functionality rather than using libraries. It forced us to have a primitive mindset while still maintaining a rather innovative mindset to solving the problem.
+
+\*\* ![Image](image.png)
