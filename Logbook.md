@@ -133,7 +133,14 @@ Disscussed different MTQQ libraries and decided to go with the ArduinoMQTT libra
 We added a service class and methods for the MQTT library, and started implementing the basic functionality of connecting to the broker and publishing messages. we also had to reconsider our connection structure for wifi as we needed to ensure that what we had already implemented was optimized for the MQTT library.
 
 ```cpp
-// SÆT ET EKSEMPEL PÅ HVORDAN VI HAR STRUKTURERET VORES KODE
+class MQTTService {
+public:
+    static void setup();
+    static bool sendMessage(const char* message, bool resend = true);
+    static bool isConnected();
+private:
+    static void reSendMessages();
+};
 
 ```
 
@@ -143,8 +150,17 @@ We did not end up with some refactoring of the APService that would follow the A
 After the core connection and publish functionality was implemented, we took a look at the message structure and discussed the best approach for the message format. We decided that the message should be sent in a JSON structure, as that would be consistent with how we would pull the data from the database. The format is done without any special libraries, as we wanted to keep the code as simple as possible.
 
 ```cpp
-// SÆT ET EKSEMPEL PÅ HVORDAN VI HAR STRUKTURERET VORES KODE
-
+    const char* toJson() const {
+        static char buffer[256];
+        sprintf(buffer, 
+        "{"
+        "\'button_id\': %d, "
+        "\'led_id\': %d, "
+        "\'type:\': \'%s\', "
+        "\'timestamp\': \'%s\'"
+        "}", button_id, light_id, SmileyTypeToString(type), asctime(timestamp));
+        return buffer;
+    }
 ```
 
 We ended up implementing the discussed queue functionality for failed messages to try and ensure less holes in the program logic, this was implemented as part of the MQTTService class.
@@ -201,9 +217,40 @@ char *failedMessages[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
         strcpy(failedMessages[lastValue], message);
 ```
 
-For the remaining development time we are focusing on tests and debugging.
-
 We had a minor issue with `\n` in the timestamp, so we had to refactor our `toJson` and ended up with a rather simple approach despite the scalability were not in focus.
 ```cpp
-// INDSÆT HER
+        static char buffer[256];
+
+        std::string s_timestamp (asctime(getTimestamp()));
+        s_timestamp.erase(std::remove(s_timestamp.begin(), s_timestamp.end(), '\n'), s_timestamp.end());
+
+        sprintf(buffer, 
+        "{"
+        "\'button_id\': %d, "
+        "\'led_id\': %d, "
+        "\'type:\': \'%s\', "
+        "\'timestamp\': \'%s\'"
+        "}", button_id, light_id, SmileyTypeToString(type), s_timestamp.c_str());
+        return buffer;
 ```
+
+After a short debate, we agreed to set the time limit of MQTT to 1.5 seconds, such that it wouldn't run indefinetly. 
+
+```cpp
+        int count = 0; 
+        while (!mqttClient.connected())
+        {
+            Serial.print(".");
+            delay(500);
+            count++;
+
+            if(count == 3){
+                Serial.println("\nERROR: MQTT request timed out");
+                return;
+            }
+        }
+```
+
+For the remaining development time we are focusing on tests and debugging.
+
+Our focus were spent on building functionality rather than using libraries. It forced us to have a primitive mindset while still maintaining a rather innovative mindset to solving the problem.
