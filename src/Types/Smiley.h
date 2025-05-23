@@ -26,8 +26,8 @@ public:
     {
         static char buffer[256];
 
-        std::string s_timestamp(asctime(getTimestamp()));
-        s_timestamp.erase(std::remove(s_timestamp.begin(), s_timestamp.end(), '\n'), s_timestamp.end());
+        char *newtime = asctime(getTimestamp());
+        newtime[strlen(newtime) - 1] = '\0';
 
         sprintf(buffer,
                 "{"
@@ -36,7 +36,7 @@ public:
                 "\'type:\': \'%s\', "
                 "\'timestamp\': \'%s\'"
                 "}",
-                button_id, light_id, SmileyTypeToString(type), s_timestamp.c_str());
+                button_id, light_id, SmileyTypeToString(type), newtime);
         return buffer;
     }
 
